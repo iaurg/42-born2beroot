@@ -150,14 +150,23 @@ Require tty: (Why use tty? If some non-root code is exploited (a PHP script, for
 **Wordpress and DB**
 
 _it's not secure to show this here, but it's only on VM..._
+
 db:wordpress
+
 db_user:italo
+
 db_pass:123123
 
 wordpress user:italo
+
 wordpress pass:&6VAfRM(KJfCKyoT!H
 
 ## Defense
+
+Check sha1 vdi
+`certutil -hashfile ./born2beroot_copy.vdi sha1`
+SHA1 hash of ./born2beroot_copy.vdi:
+c81ba7a127ad1bfec30b1df80d05017dbec95d88
 
 ### Project Overview
 **How a virtual machine works:**
@@ -212,6 +221,8 @@ apt get:
 Check app armor running
 `sudo aa-status`
 
+Restrict actions on SO, to allow only authorized users/proccess to access some paths.
+
 ### Simple Setup 
 
 See services running
@@ -239,6 +250,9 @@ Create group
 Assign user to group
 `sudo usermod -aG evaluating your_new_username`
 
+Check user group
+`groups your_new_username`
+
 ## Hostname and partitions
 Show users
 `less /etc/passwd`
@@ -246,6 +260,7 @@ Show users
 Change hostname
 `sudo hostnamectl set-hostname username`
 `sudo nano /etc/hosts`
+`sudo reboot`
 
 View partitions
 `lsblk`
@@ -255,16 +270,28 @@ View partitions
 Check sudo installed
 `sudo -V`
 
-Check it's working
-- Open power shell
-- `ssh itaureli42@127.0.0.1 -p 4242`
-- Connected
+Add new user into sudo group
+`usermod -aG sudo your_username`
 
-Check port running ssh
-`sudo service ssh status`
+Check group
+`getent group sudo`
+
+Sudo limits
+`sudo visudo`
+
+By example on this machine only sudo can reboot the server, because I don't want any user with this power, so command `reboot` not work without sudo privilegies.
 
 Check log
 `sudo nano /var/log/sudo/sudo.log`
+
+Show log working
+```sh
+su -
+cd /var/log/sudo
+rm sudo.log
+sudo echo "hello 42"
+less sudo.log
+```
 
 ## UFW
 
@@ -274,6 +301,16 @@ Check ufw is installed
 Check ufw is working properly and list active porst
 `ufw status numbered`
 
+**UFW is**
+A firewall manager that allow or disallow access to ports, it's a netfilter. This type of filter creates a barrier between a public and private connection.
+
+The rules of the firewall can be based on:
+- ports
+- ip addresses
+- domain names
+- protocols
+- programs
+
 Add new rule to 8080
 `ufw allow 8080`
 
@@ -281,9 +318,42 @@ Delete rule
 `ufw delete ROWNUMBER`
 
 ## SSH
+Check port running ssh
+`sudo service ssh status`
+
+**SSH is**
+SSH basicly is a encrypted content that can be sent into the internet without risk, because only the servers with keys can access and read it. This is a secure way to transfer data through network. SSH encrypt the payload of a package before send it to another computer.
+
+Check it's working
+- Open power shell
+- `ssh newuser42@127.0.0.1 -p 4242`
+- Connected
+
+## Script monitoring
 
 Monitoring shell
 `sudo nano /usr/local/bin/`
 
-Stop script
-`crontab -e stop`
+**cron is**
+Is a job manager to allow you to run some task into the future or from time-to-time, schedule tasks and run it.
+
+Edit cron
+`crontab -u root -e`
+
+Stop cron service
+`sudo service cron stop`
+`sudo /etc/init.d/cron stop`
+
+## Bonus
+
+Check services running on machine
+`systemctl list-units --type=service`
+
+Show php
+`php -v`
+
+Show mariadb
+`sudo mariadb -v`
+
+Show lighttpd
+`sudo lighttpd -v`
